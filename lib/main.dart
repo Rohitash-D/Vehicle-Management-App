@@ -9,6 +9,8 @@ import 'package:vehicle_management_app/core/config/theme/app_theme.dart';
 import 'package:vehicle_management_app/firebase_options.dart';
 import 'package:vehicle_management_app/presentation/choose_mode/bloc/theme_cubit.dart';
 import 'package:vehicle_management_app/presentation/pages/getstartedpage/getstartedpage.dart';
+import 'package:vehicle_management_app/presentation/pages/homepage/homepage.dart';
+import 'package:vehicle_management_app/presentation/pages/spashscreen/splashscreen.dart';
 import 'package:vehicle_management_app/service_locator.dart';
 
 Future<void> main() async {
@@ -49,7 +51,7 @@ class MyApp extends StatelessWidget {
             theme: AppTheme.lightTheme,
             debugShowCheckedModeBanner: false,
             darkTheme: AppTheme.darkTheme,
-            home: const GetStartedPage(),
+            home: Splashscreen(),
           );
         },
       ),

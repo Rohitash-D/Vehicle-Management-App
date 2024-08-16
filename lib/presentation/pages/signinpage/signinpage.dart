@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:vehicle_management_app/data/models/auth/signin_user_req.dart';
+import 'package:vehicle_management_app/domain/usecases/auth/sigin.dart';
+import 'package:vehicle_management_app/presentation/pages/homepage/homepage.dart';
 import 'package:vehicle_management_app/presentation/pages/signuppage/signuppage.dart';
 import 'package:vehicle_management_app/presentation/widgets/authappbutton.dart';
 import 'package:vehicle_management_app/presentation/widgets/logo_name.dart';
+import 'package:vehicle_management_app/service_locator.dart';
 
 class SigninPage extends StatelessWidget {
   SigninPage({super.key});
@@ -45,8 +49,57 @@ class SigninPage extends StatelessWidget {
                     ),
                     AuthAppButton(
                         text: "Sign In",
-                        onPressed: () {
-                          _formKey.currentState!.validate();
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                });
+                            var result = await sl<SigninUseCase>().call(
+                              params: SigninUserReq(
+                                email: _emailController.text.toString(),
+                                password: _passwordController.text.toString(),
+                              ),
+                            );
+                            result.fold(
+                              (l) {
+                                Navigator.of(context).pop();
+                                showDialog(
+                                    context: context,
+                                    builder: (builder) {
+                                      return AlertDialog(
+                                        title: const Text('Error'),
+                                        content: Text(l.toString()),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: const Text('OK'),
+                                          ),
+                                        ],
+                                      );
+                                    });
+                              },
+                              (r) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    behavior: SnackBarBehavior.floating,
+                                    content: Text('Sign in successful'),
+                                  ),
+                                );
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const Homepage(),
+                                  ),
+                                );
+                              },
+                            );
+                          }
                         }),
                     const SizedBox(
                       height: 200,

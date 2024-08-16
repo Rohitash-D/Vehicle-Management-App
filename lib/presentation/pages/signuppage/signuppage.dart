@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:vehicle_management_app/data/models/auth/create_user_req.dart';
+import 'package:vehicle_management_app/domain/usecases/auth/signup.dart';
 import 'package:vehicle_management_app/presentation/pages/signinpage/signinpage.dart';
 import 'package:vehicle_management_app/presentation/widgets/authappbutton.dart';
 import 'package:vehicle_management_app/presentation/widgets/logo_name.dart';
+import 'package:vehicle_management_app/service_locator.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -50,14 +53,14 @@ class _SignupPageState extends State<SignupPage> {
                     const SizedBox(
                       height: 20,
                     ),
-                    employeeIdField(context),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    contactNumberField(context),
-                    const SizedBox(
-                      height: 20,
-                    ),
+                    // employeeIdField(context),
+                    // const SizedBox(
+                    //   height: 20,
+                    // ),
+                    // contactNumberField(context),
+                    // const SizedBox(
+                    //   height: 20,
+                    // ),
                     passwordField(context),
                     const SizedBox(
                       height: 20,
@@ -68,8 +71,49 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                     AuthAppButton(
                         text: "Sign Up",
-                        onPressed: () {
-                          _formKey.currentState!.validate();
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                });
+                            var result = await sl<SignupUseCase>().call(
+                              params: CreateUserReq(
+                                fullName: _fullNameController.text.toString(),
+                                email: _emailController.text.toString(),
+                                password: _passwordController.text.toString(),
+                              ),
+                            );
+                            result.fold(
+                              (l) {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(l.message),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              },
+                              (r) {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Signup successful'),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => SigninPage(),
+                                  ),
+                                );
+                              },
+                            );
+                          }
                         }),
                     const SizedBox(
                       height: 20,
